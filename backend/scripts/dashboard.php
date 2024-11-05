@@ -1,19 +1,19 @@
 <?php
-session_start();
+// session_start();
 
-// Перевірка, чи користувач авторизований
-if(!isset($_SESSION['user_id'])) {
-    header("Location: /");
-    session_destroy();
-    exit();
-}
+// // Перевірка, чи користувач авторизований
+// if(!isset($_SESSION['user_id'])) {
+//     header("Location: /");
+//     session_destroy();
+//     exit();
+// }
 
-// Отримання ID користувача
-$userID = $_SESSION['user_id'];
-$name = $_SESSION['username'];
+// // Отримання ID користувача
+// $userID = $_SESSION['user_id'];
+// $name = $_SESSION['username'];
 ?>
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -27,4 +27,4 @@ $name = $_SESSION['username'];
 <a href="logout.php">Вийти</a>
 
 </body>
-</html>
+</html> -->

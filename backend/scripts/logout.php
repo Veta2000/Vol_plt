@@ -1,10 +1,10 @@
 <?php
-session_start();
+// session_start();
 
-// Закриття сесії
-session_destroy();
+// // Закриття сесії
+// session_destroy();
 
-// Перенаправлення на сторінку входу
-header("Location: /");
-exit();
+// // Перенаправлення на сторінку входу
+// header("Location: /");
+// exit();
 ?>
