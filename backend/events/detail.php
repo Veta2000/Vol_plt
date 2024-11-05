@@ -12,15 +12,13 @@ $event = getEventDetails($eventId);
     <h2>Детали мероприятия</h2>
     <h3><?= htmlspecialchars($event['name']); ?></h3>
     <p>Дата: <?= htmlspecialchars($event['date']); ?></p>
+    
     <p>Описание: <?= htmlspecialchars($event['description']); ?></p>
     <p>Участников: <?= htmlspecialchars($event['participants']); ?></p>
 </div>
 
 <h3 class="mt-4">Комментарии</h3>
-    <div class="comments">
-       //
-    
-    </div>
+   
 
     <h4 class="mt-4">Оставить комментарий</h4>
     <form action="comment.php" method="POST" enctype="multipart/form-data">
@@ -74,6 +72,31 @@ $event = getEventDetails($eventId);
 
         <button type="submit" class="btn btn-primary">Отправить комментарий</button>
     </form>
+</div>
+
+<div class="comments">
+<?php
+$stmt = $pdo->prepare("SELECT * FROM comments WHERE event_id = ?");
+$stmt->execute([$eventId]);
+$comments = $stmt->fetchAll();
+
+foreach ($comments as $comment) {
+    echo "<div class='comment'>";
+    echo "<p><strong>Рейтинг:</strong> " . htmlspecialchars($comment['rating']) . "</p>";
+    echo "<p><strong>Опыт:</strong> " . htmlspecialchars($comment['experience']) . "</p>";
+    echo "<p><strong>Рекомендация:</strong> " . ($comment['recommend'] ? "Да" : "Нет") . "</p>";
+    echo "<p><strong>Оценка доступности:</strong> " . htmlspecialchars($comment['accessibility']) . "</p>";
+    echo "<p><strong>Комментарий:</strong> " . htmlspecialchars($comment['comment_text']) . "</p>";
+    // Вывод фото
+    $images = json_decode($comment['images'], true);
+    if ($images) {
+        foreach ($images as $image) {
+            echo "<img src='../uploads/" . htmlspecialchars($image) . "' alt='Фото' style='width:100px;'>";
+        }
+    }
+    echo "</div><hr>";
+}
+?> 
 </div>
 
 <?php include_once '../includes/footer.php'; ?>
