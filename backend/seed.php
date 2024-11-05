@@ -4,23 +4,24 @@ require 'vendor/autoload.php';
 require_once 'config.php'; 
 
 $faker = Faker\Factory::create();
+print_r($config);
 
 // подключение к бд
 try {
-    $pdo = new PDO("mysql:host={$config['db']['host']};dbname={$config['db']['dbname']}", $config['db']['user'], $config['db']['password']);
+    $pdo = new PDO("mysql:host={$config['db']['host']};dbname={$config['db']['db']}", $config['db']['username'], $config['db']['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Ошибка подключения к базе данных: " . $e->getMessage());
 }
 
-// пароль
+// пароль 
 $password = password_hash('ComplexPass123!', PASSWORD_DEFAULT);
 
 // пользователи
 for ($i = 0; $i < 1000; $i++) {
     $role = $i < 500 ? 'volunteer' : 'organizer';
-    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$faker->name, $faker->email, $password, $role]);
+    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$faker->username, $faker->email, $password, $role]);
 }
 echo "500 волонтеров и 500 организаторов успешно созданы.\n";
 
