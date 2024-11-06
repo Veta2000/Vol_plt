@@ -12,7 +12,7 @@ $stmt->execute([$_SESSION['user_id']]);
 $events = $stmt->fetchAll();
 ?>
 
-<?php include_once '../includes/header.php'; ?>
+
 <div class="container mt-5">
     <h2>Мои мероприятия</h2>
     <a href="../events/create.php" class="btn btn-primary mb-3">Создать новое мероприятие</a>

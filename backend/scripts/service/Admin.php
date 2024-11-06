@@ -1,11 +1,11 @@
 <?php
 
-namespace Palmo\Core\service;
+// namespace Palmo\Core\service;
 
-class Admin
-{
-    public function __construct()
-    {
-        echo "Admin";
-    }
-}
+// class Admin
+// {
+//     public function __construct()
+//     {
+//         echo "Admin";
+//     }
+// }

@@ -4,31 +4,33 @@ require 'vendor/autoload.php';
 require_once 'config.php'; 
 
 $faker = Faker\Factory::create();
-print_r($config);
 
 // подключение к бд
 try {
-    $pdo = new PDO("mysql:host={$config['db']['host']};dbname={$config['db']['db']}", $config['db']['username'], $config['db']['password']);
+    $pdo = new PDO("mysql:host={$config['db']['host']};dbname={$config['db']['dbname']}", $config['db']['user'], $config['db']['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Ошибка подключения к базе данных: " . $e->getMessage());
 }
 
-// пароль 
+// // пароль 
 $password = password_hash('ComplexPass123!', PASSWORD_DEFAULT);
 
-// пользователи
+// // пользователи
 for ($i = 0; $i < 1000; $i++) {
     $role = $i < 500 ? 'volunteer' : 'organizer';
+    $username = $faker->unique()->userName;
+    $email = $faker->unique()->email;
     $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$faker->username, $faker->email, $password, $role]);
+    $userdt = [$username, $email, $password, $role];
+    $stmt->execute($userdt);
 }
 echo "500 волонтеров и 500 организаторов успешно созданы.\n";
-
 $organizerIds = $pdo->query("SELECT id FROM users WHERE role = 'organizer'")->fetchAll(PDO::FETCH_COLUMN);
 
 // мероприятия
 $eventCount = 0;
+
 foreach ($organizerIds as $organizerId) {
     $eventsToCreate = rand(0, 10);
     for ($j = 0; $j < $eventsToCreate; $j++) {
@@ -50,13 +52,14 @@ foreach ($organizerIds as $organizerId) {
 echo "1000 мероприятий успешно созданы.\n";
 
 $eventIds = $pdo->query("SELECT id FROM events")->fetchAll(PDO::FETCH_COLUMN);
+$usersId = $pdo->query("SELECT id FROM users")->fetchAll(PDO::FETCH_COLUMN);
 
-// комментарии
+// // комментарии
 for ($i = 0; $i < 1000; $i++) {
     $stmt = $pdo->prepare("INSERT INTO comments (event_id, user_id, comment_text, created_at) VALUES (?, ?, ?, ?)");
     $stmt->execute([
-        $faker->randomElement($eventIds),
-        rand(1, 500), 
+        $faker->randomElement($eventIds), 
+        $faker->randomElement($usersId),  
         $faker->sentence,
         $faker->dateTimeThisYear()->format('Y-m-d H:i:s')
     ]);
