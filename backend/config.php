@@ -1,5 +1,4 @@
 <?php
-
 $config = parse_ini_file(__DIR__ . '/config/config.ini', true);
 
 if ($config === false) {
@@ -22,7 +21,7 @@ $options = [
 ];
 
 try {
-    // Создание экземпляра PDO для подключения к базе данных
+    // PDO для подключения к базе данных
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
     // Вывод ошибки при неудачном подключении к базе данных
