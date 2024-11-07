@@ -16,7 +16,7 @@ $events = getPopularEvents(5);
         <?php foreach ($events as $event): ?>
             <div class="event">
                 <h3><?= htmlspecialchars($event['name']); ?></h3>
-                <p>Дата: <?= htmlspecialchars($event['date']); ?></p>
+                <p>Дата: <?= htmlspecialchars($event['event_date']); ?></p>
                 <p>Участников: <?= htmlspecialchars($event['participant_count']); ?></p>
                 <a href="events/detail.php?id=<?= $event['id']; ?>" class="btn btn-info">Подробнее</a>
             </div>
