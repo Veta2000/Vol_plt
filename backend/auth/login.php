@@ -1,8 +1,6 @@
 <?php
 session_start();
 require_once '../config.php';
-include_once '../includes/navbar.php';
-
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -21,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //     echo "Пользователь не найден.";
     // }
 
-
+// var_dump($user , password_verify($password, $user['password']));
+// die();
     // если пользователь + и пароль +
     if ($user && password_verify($password, $user['password'])) {
     
@@ -45,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = "Неправильное имя пользователя или пароль.";
     }
  }
+ include_once '../includes/navbar.php';
 ?>
 
 <div class="container mt-5">

@@ -1,5 +1,4 @@
 <?php
-// include_once '../includes/navbar.php';
 require_once '../config.php';
 
 $errors = [];
@@ -31,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
          exit;
      }
  }
+ include_once '../includes/navbar.php';
  ?>
 
 <div class="container mt-5">

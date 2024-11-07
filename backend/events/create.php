@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $date = $_POST['date'];
     $organizer_id = $_SESSION['user_id'];
 
-    $stmt = $pdo->prepare("INSERT INTO events (title, description, date, organizer_id) VALUES (?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO events (name, description, event_date, created_by) VALUES (?, ?, ?, ?)");
     $stmt->execute([$title, $description, $date, $organizer_id]);
 
     header("Location: ../profile/organizer.php");

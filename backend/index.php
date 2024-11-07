@@ -1,7 +1,9 @@
 <?php
+session_start();
 include_once 'includes/header.php';
 include_once 'includes/navbar.php';
 include_once 'includes/functions.php';
+require_once 'config.php';
 
 $events = getPopularEvents(5); 
 

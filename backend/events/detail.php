@@ -1,19 +1,26 @@
 <?php
-include_once '../includes/navbar.php';
 include_once '../includes/functions.php';
+require_once '../config.php';
 
 $eventId = $_GET['id'];
 $event = getEventDetails($eventId);
 
+// если ID мероприятия не указан или событие не существует
+if (!$eventId || !($event = getEventDetails($eventId))) {
+    header("Location: /404.php");
+    exit;
+}
+
 ?>
+<?php include_once  '../includes/navbar.php'; ?>
 
 <div class="container mt-5">
     <h2>Детали мероприятия</h2>
     <h3><?= htmlspecialchars($event['name']); ?></h3>
-    <p>Дата: <?= htmlspecialchars($event['date']); ?></p>
+    <p>Дата: <?= htmlspecialchars($event['event_date']); ?></p>
     
     <p>Описание: <?= htmlspecialchars($event['description']); ?></p>
-    <p>Участников: <?= htmlspecialchars($event['participants']); ?></p>
+    <p>Участников: <?= htmlspecialchars($event['participant_count']); ?></p>
 </div>
 
 <h3 class="mt-4">Комментарии</h3>
@@ -21,7 +28,7 @@ $event = getEventDetails($eventId);
 
     <h4 class="mt-4">Оставить комментарий</h4>
     <form action="comment.php" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="event_id" value="<?php echo $event_id; ?>">
+        <input type="hidden" name="event_id" value="<?php echo $eventId; ?>">
 
         <div class="mb-3">
             <label for="commentText" class="form-label">Комментарий</label>
