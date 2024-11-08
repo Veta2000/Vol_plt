@@ -8,25 +8,6 @@ function getPopularEvents($limit) {
     return $stmt->fetchAll();
 }
 
-//  все мероприятия
-// с пагинацией
-function getAllEvents($limit, $offset) {
-    global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM events ORDER BY event_date ASC LIMIT :limit OFFSET :offset");
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    $stmt->execute();
-    return $stmt->fetchAll();
-}
-
-
-// для подсчета общего количества мероприятий
-function getTotalEventsCount() {
-    global $pdo;
-    $stmt = $pdo->query("SELECT COUNT(*) FROM events");
-    return $stmt->fetchColumn();
-}
-
 
 
 //  получение дет мероприятия
@@ -35,4 +16,46 @@ function getEventDetails($id) {
     $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ?");
     $stmt->execute([$id]);
     return $stmt->fetch();
+}
+
+
+function getFilteredEvents($limit, $offset, $sort, $location) {
+    global $pdo;
+
+    $query = "SELECT * FROM events WHERE 1=1";
+    
+    if (!empty($location)) {
+        $query .= " AND location LIKE :location";
+    }
+    
+    $query .= " ORDER BY $sort LIMIT :limit OFFSET :offset";
+    
+    $stmt = $pdo->prepare($query);
+    if (!empty($location)) {
+        $stmt->bindValue(':location', "%$location%", PDO::PARAM_STR);
+    }
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getTotalEventsCount($location = '') {
+    global $pdo;
+
+    $query = "SELECT COUNT(*) FROM events WHERE 1=1";
+
+    if (!empty($location)) {
+        $query .= " AND location LIKE :location";
+    }
+
+    $stmt = $pdo->prepare($query);
+
+    if (!empty($location)) {
+        $stmt->bindValue(':location', "%$location%", PDO::PARAM_STR);
+    }
+
+    $stmt->execute();
+    return (int)$stmt->fetchColumn();
 }
