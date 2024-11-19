@@ -1,11 +1,28 @@
 <?php
 session_start();
 include_once 'includes/header.php';
-include_once 'includes/navbar.php';
 include_once 'includes/functions.php';
 require_once 'config.php';
 
 $events = getPopularEvents(5); 
+
+include_once 'includes/navbar.php';
+
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
+    $rememberToken = $_COOKIE['remember_me'];
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE remember_token = :token");
+    $stmt->bindParam(':token', $rememberToken);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+        // Автоматическая аутентификация
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role'] = $user['role'];
+    }
+}
 
 ?>
 

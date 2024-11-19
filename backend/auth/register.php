@@ -1,5 +1,6 @@
 <?php
 require_once '../config.php';
+require_once '../includes/validators/Validator.php';
 
 $errors = [];
 
@@ -9,27 +10,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
     $role = $_POST['role'];
 
-     // уникальность имени пользователя
-     $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
-     $stmt->execute([$username]);
-     if ($stmt->fetchColumn() > 0) {
-         $errors[] = "Имя пользователя уже занято.";
-     }
- 
-     // пароля
-     if (strlen($password) < 10 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/\d/', $password) || !preg_match('/[\W_]/', $password)) {
-         $errors[] = "Пароль должен содержать более 10 символов, включать буквы верхнего и нижнего регистра, цифры и спецсимволы.";
-     }
- 
-     // сохр бд
-     if (empty($errors)) {
-         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-         $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-         $stmt->execute([$username, $email, $passwordHash, $role]);
-         header("Location: login.php");
-         exit;
-     }
- }
+    $validator = new Validator();
+    $validator->addValidator('username', 'string');
+    $validator->addValidator('email', 'string'); 
+    $validator->addValidator('password', 'string'); 
+    $validator->addValidator('role', 'string');
+
+
+    $data = [
+        'username' => $username,
+        'email' => $email,
+        'password' => $password,
+        'role' => $role
+    ];
+
+
+    if ($validator->validate($data)) {
+        // Доп проверка уникальности юзера
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+        $stmt->execute([$username]);
+        if ($stmt->fetchColumn() > 0) {
+            $errors['username'] = "Имя пользователя уже занято.";
+        }
+
+        // Проверка пароля
+        if (strlen($password) < 10 || 
+            !preg_match('/[A-Z]/', $password) || 
+            !preg_match('/[a-z]/', $password) || 
+            !preg_match('/\d/', $password) || 
+            !preg_match('/[\W_]/', $password)) {
+            $errors['password'] = "Пароль должен содержать более 10 символов, включать буквы верхнего и нижнего регистра, цифры и спецсимволы.";
+        }
+
+        // Если нет ошибок, сохраняем в бд
+        if (empty($errors)) {
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$username, $email, $passwordHash, $role]);
+            header("Location: login.php");
+            exit;
+        }
+    } else {
+        $errors = array_merge($errors, $validator->getErrors());
+    }
+}
  include_once '../includes/navbar.php';
  ?>
 
@@ -47,22 +71,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <form action="register.php" method="POST">
         <div class="mb-3">
             <label for="username" class="form-label">Имя пользователя</label>
-            <input type="text" class="form-control" id="username" name="username" required>
+            <input type="text" class="form-control <?= isset($errors['username']) ? 'is-invalid' : ''; ?>" id="username" name="username" value="<?= htmlspecialchars($username ?? ''); ?>" required>
+            <?php if (isset($errors['username'])): ?>
+                <div class="invalid-feedback"><?= htmlspecialchars($errors['username']); ?></div>
+            <?php endif; ?>
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Электронная почта</label>
-            <input type="email" class="form-control" id="email" name="email" required>
+            <input type="email" class="form-control <?= isset($errors['email']) ? 'is-invalid' : ''; ?>" id="email" name="email" value="<?= htmlspecialchars($email ?? ''); ?>" required>
+            <?php if (isset($errors['email'])): ?>
+                <div class="invalid-feedback"><?= htmlspecialchars($errors['email']); ?></div>
+            <?php endif; ?>
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Пароль</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+            <input type="password" class="form-control <?= isset($errors['password']) ? 'is-invalid' : ''; ?>" id="password" name="password" required>
+            <?php if (isset($errors['password'])): ?>
+                <div class="invalid-feedback"><?= htmlspecialchars($errors['password']); ?></div>
+            <?php endif; ?>
         </div>
         <div class="mb-3">
             <label for="role" class="form-label">Роль</label>
-            <select class="form-control" id="role" name="role" required>
-                <option value="volunteer">Волонтер</option>
-                <option value="organizer">Организатор</option>
+            <select class="form-control <?= isset($errors['role']) ? 'is-invalid' : ''; ?>" id="role" name="role" required>
+                <option value="">Выберите роль</option>
+                <option value="volunteer" <?= (isset($role) && $role === 'volunteer') ? 'selected' : ''; ?>>Волонтер</option>
+                <option value="organizer" <?= (isset($role) && $role === 'organizer') ? 'selected' : ''; ?>>Организатор</option>
             </select>
+            <?php if (isset($errors['role'])): ?>
+                <div class="invalid-feedback"><?= htmlspecialchars($errors['role']); ?></div>
+            <?php endif; ?>
         </div>
         <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
     </form>

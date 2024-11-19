@@ -1,15 +1,28 @@
 <?php
+session_start();
 include_once '../includes/functions.php';
 require_once '../config.php';
 
 $eventId = $_GET['id'];
 $event = getEventDetails($eventId);
 
-// если ID мероприятия не указан или событие не существует
+// если ID мероприятия не указан событие не существует
 if (!$eventId || !($event = getEventDetails($eventId))) {
     header("Location: /404.php");
     exit;
 }
+
+// Проверка, что пользователь авторизован
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+    $userRole = $_SESSION['role']; 
+}
+//проверка на логин
+
+$eventId = $_GET['id'];
+$event = getEventDetails($eventId);
+
+$isOrganizer = $userRole === 'organizer' && $userId === $event['created_by'];
 
 ?>
 <?php include_once  '../includes/navbar.php'; ?>
@@ -22,6 +35,19 @@ if (!$eventId || !($event = getEventDetails($eventId))) {
     <p>Описание: <?= htmlspecialchars($event['description']); ?></p>
     <p>Участников: <?= htmlspecialchars($event['participant_count']); ?></p>
 </div>
+
+<div class="container mt-5">
+    <h2>Детали мероприятия</h2>
+    <h3><?= htmlspecialchars($event['name']); ?></h3>
+    <p>Дата: <?= htmlspecialchars($event['event_date']); ?></p>
+    <p>Описание: <?= htmlspecialchars($event['description']); ?></p>
+    <p>Участников: <?= htmlspecialchars($event['participant_count']); ?></p>
+
+    <?php if ($isOrganizer): ?>
+        <a href="edit_event.php?id=<?= $eventId; ?>" class="btn btn-primary mt-3">Редактировать мероприятие</a>
+    <?php endif; ?>
+</div>
+
 
 <h3 class="mt-4">Комментарии</h3>
    

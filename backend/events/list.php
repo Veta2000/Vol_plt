@@ -17,10 +17,10 @@ if ($page < 1) {
 }
 $offset = ($page - 1) * $limit;
 
-// Параметры сортировки
+// сортировка
 $sort = isset($_GET['sort']) && $_GET['sort'] === 'popularity' ? 'participant_count' : 'event_date';
 
-// Параметры фильтрации
+// фильтр
 $location = isset($_GET['location']) ? trim($_GET['location']) : '';
 
 // Получение данных с учетом сортировки и фильтрации
@@ -51,35 +51,56 @@ include_once '../includes/navbar.php';
     </form>
 
     <div class="events">
-        <?php foreach ($events as $event): ?>
-            <div class="event">
-                <h3><?= htmlspecialchars($event['name']); ?></h3>
-                <p>Дата: <?= htmlspecialchars($event['event_date']); ?></p>
-                <p>Участников: <?= htmlspecialchars($event['participant_count']); ?></p>
-                <a href="detail.php?id=<?= $event['id']; ?>" class="btn btn-info">Подробнее</a>
+        <?php if (count($events) > 0): ?>
+            <div class="row">
+                <?php foreach ($events as $event): ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><?= htmlspecialchars($event['name']); ?></h5>
+                                <p class="card-text"><strong>Дата:</strong> <?= htmlspecialchars($event['event_date']); ?></p>
+                                <p class="card-text"><strong>Участников:</strong> <?= htmlspecialchars($event['participant_count']); ?></p>
+                                <p class="card-text"><strong>Местоположение:</strong> <?= htmlspecialchars($event['location']); ?></p>
+                                <a href="detail.php?id=<?= htmlspecialchars($event['id']); ?>" class="btn btn-info">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endforeach; ?>
+        <?php else: ?>
+            <p>Мероприятий не найдено.</p>
+        <?php endif; ?>
     </div>
 
-    <nav aria-label="Пагинация">
-        <ul class="pagination justify-content-center mt-4">
-            <?php if ($page > 1): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?= $page - 1 ?>&sort=<?= $sort ?>&location=<?= urlencode($location) ?>">Назад</a>
-                </li>
-            <?php endif; ?>
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <li class="page-item <?= $i === $page ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?= $i ?>&sort=<?= $sort ?>&location=<?= urlencode($location) ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
-            <?php if ($page < $totalPages): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?= $page + 1 ?>&sort=<?= $sort ?>&location=<?= urlencode($location) ?>">Вперед</a>
-                </li>
-            <?php endif; ?>
-        </ul>
-    </nav>
+    <!-- Пагинация -->
+    <?php if ($totalPages > 1): ?>
+        <nav aria-label="Пагинация">
+            <ul class="pagination justify-content-center mt-4">
+
+                <?php if ($page > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $page - 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>" aria-label="Предыдущая">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= ($i === $page) ? 'active' : ''; ?>">
+                        <a class="page-link" href="?page=<?= $i; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>"><?= $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <?php if ($page < $totalPages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $page + 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>" aria-label="Следующая">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    <?php endif; ?>
 </div>
 
 <?php include_once '../includes/footer.php'; ?>
