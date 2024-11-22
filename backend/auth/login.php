@@ -2,6 +2,7 @@
 session_start();
 require_once '../config.php';
 require_once '../includes/validators/Validator.php';
+include_once '../includes/functions.php';
 
 $errors = [];
 

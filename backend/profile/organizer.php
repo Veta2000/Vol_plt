@@ -1,5 +1,7 @@
 <?php
 session_start();
+include_once '../includes/functions.php';
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'organizer') {
     include '../404.php'; 
     exit;
@@ -17,6 +19,21 @@ include_once '../includes/navbar.php';
 
 <div class="container mt-5">
     <h2>Мои мероприятия</h2>
+    
+    <?php if (isset($_SESSION['success_message'])): ?>
+    <div class="alert alert-success">
+        <?= htmlspecialchars($_SESSION['success_message']); ?>
+        <?php unset($_SESSION['success_message']); ?>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error_message'])): ?>
+    <div class="alert alert-danger">
+        <?= htmlspecialchars($_SESSION['error_message']); ?>
+        <?php unset($_SESSION['error_message']); ?>
+    </div>
+<?php endif; ?>
+
     <a href="../events/create.php" class="btn btn-primary mb-3">Создать новое мероприятие</a>
     <div class="row">
         <?php foreach ($events as $event): ?>

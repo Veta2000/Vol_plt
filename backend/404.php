@@ -1,5 +1,7 @@
 <?php
 include_once 'includes/navbar.php';
+include_once 'includes/functions.php';
+
 ?>
 
 <div class="container mt-5">

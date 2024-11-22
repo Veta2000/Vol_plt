@@ -59,3 +59,53 @@ function getTotalEventsCount($location = '') {
     $stmt->execute();
     return (int)$stmt->fetchColumn();
 }
+
+function deleteEvent($pdo, $eventId, $userId) {
+    // Получение данных мероприятия
+    $event = getEventDetails($eventId);
+
+    // Проверка существования мероприятия
+    if (!$event) {
+        return ['status' => false, 'message' => 'Мероприятие не найдено.'];
+    }
+
+    // Проверка прав на удаление
+    if ($event['created_by'] != $userId) {
+        return ['status' => false, 'message' => 'У вас нет прав для удаления этого мероприятия.'];
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        // Удаление участников мероприятия
+        $stmt = $pdo->prepare("DELETE FROM event_participants WHERE event_id = ?");
+        $stmt->execute([$eventId]);
+
+        // Удаление комментариев
+        $stmt = $pdo->prepare("DELETE FROM comments WHERE event_id = ?");
+        $stmt->execute([$eventId]);
+
+        // Удаление самого мероприятия
+        $stmt = $pdo->prepare("DELETE FROM events WHERE id = ?");
+        $stmt->execute([$eventId]);
+
+        $pdo->commit();
+        return ['status' => true, 'message' => 'Мероприятие успешно удалено.'];
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        return ['status' => false, 'message' => 'Ошибка при удалении: ' . $e->getMessage()];
+    }
+}
+
+// бутстрап
+function includeBootstrap() {
+    echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">';
+}
+
+function includeCustomCSS($path) {
+    echo '<link rel="stylesheet" href="' . htmlspecialchars($path) . '">';
+}
+
+function includeBootstrapJS() {
+    echo '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>';
+}

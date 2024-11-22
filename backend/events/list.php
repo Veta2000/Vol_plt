@@ -30,6 +30,15 @@ $events = getFilteredEvents($limit, $offset, $sort, $location);
 $totalEvents = getTotalEventsCount($location);
 $totalPages = ceil($totalEvents / $limit);
 
+// начальная, конечная стр
+$visiblePages = 5;
+
+$startPage = max(1, $page - floor($visiblePages / 2));
+$endPage = min($totalPages, $startPage + $visiblePages - 1);
+
+$startPage = max(1, $endPage - $visiblePages + 1);
+
+
 include_once '../includes/navbar.php';
 ?>
 
@@ -74,33 +83,56 @@ include_once '../includes/navbar.php';
 
     <!-- Пагинация -->
     <?php if ($totalPages > 1): ?>
-        <nav aria-label="Пагинация">
-            <ul class="pagination justify-content-center mt-4">
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
 
-                <?php if ($page > 1): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $page - 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>" aria-label="Предыдущая">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                <?php endif; ?>
+            <!-- Назад -->
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page - 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            <?php else: ?>
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            <?php endif; ?>
 
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <li class="page-item <?= ($i === $page) ? 'active' : ''; ?>">
-                        <a class="page-link" href="?page=<?= $i; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>"><?= $i; ?></a>
-                    </li>
-                <?php endfor; ?>
+            <!-- диапазон страниц -->
+            <?php if ($startPage > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $startPage - 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>">...</a>
+                </li>
+            <?php endif; ?>
 
-                <?php if ($page < $totalPages): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $page + 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>" aria-label="Следующая">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-    <?php endif; ?>
-</div>
+            <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                <li class="page-item <?= ($i === $page) ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?= $i; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>"><?= $i; ?></a>
+                </li>
+            <?php endfor; ?>
+
+            <?php if ($endPage < $totalPages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $endPage + 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>">...</a>
+                </li>
+            <?php endif; ?>
+
+            <!-- вперед -->
+            <?php if ($page < $totalPages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page + 1; ?>&sort=<?= $sort; ?>&location=<?= urlencode($location); ?>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            <?php else: ?>
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+            <?php endif; ?>
+
+        </ul>
+    </nav>
+<?php endif; ?>
 
 <?php include_once '../includes/footer.php'; ?>

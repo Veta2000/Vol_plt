@@ -1,5 +1,9 @@
 <?php
 session_start();
+
+include_once '../includes/functions.php';
+
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'organizer') {
     header("Location: ../auth/login.php");
     exit;

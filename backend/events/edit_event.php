@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="description" class="form-label">Описание</label>
             <textarea class="form-control" id="description" name="description" required><?= htmlspecialchars($event['description']); ?></textarea>
         </div>
-        <button type="submit" class="btn btn-success">Сохранить изменения</button>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
     </form>
 </div>
 

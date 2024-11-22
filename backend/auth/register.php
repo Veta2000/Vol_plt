@@ -1,7 +1,9 @@
 <?php
 require_once '../config.php';
 require_once '../includes/validators/Validator.php';
+include_once '../includes/functions.php';
 
+session_start();
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -47,13 +49,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
             $stmt->execute([$username, $email, $passwordHash, $role]);
-            header("Location: login.php");
+          
+          if ($stmt->rowCount() > 0) {
+            // Получение ид нового юзера
+            $userId = $pdo->lastInsertId();
+
+            // данные сессии 
+            $_SESSION['user_id'] = $userId;
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = $role;
+
+            // Перенаправление на лк
+            $profilePage = $role === 'organizer' ? '/profile/organizer.php' : '/profile/volunteer.php';
+            header("Location: $profilePage");
             exit;
         }
-    } else {
-        $errors = array_merge($errors, $validator->getErrors());
     }
+} else {
+    $errors = array_merge($errors, $validator->getErrors());
 }
+}
+
+
  include_once '../includes/navbar.php';
  ?>
 
