@@ -1,6 +1,7 @@
 <?php
 include_once '../includes/functions.php';
 require_once '../config.php';
+require_once '../includes/validators/EventFormatter.php';
 
 session_start();
 
@@ -18,13 +19,17 @@ if (!$event || ($userRole !== 'organizer' || $userId !== $event['created_by'])) 
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $formatter = new EventFormatter();
+
     $name = $_POST['name'];
     $eventDate = $_POST['event_date'];
     $description = $_POST['description'];
 
-    // без participant_count
+    // Форматирование данных перед записью
+    [$formattedName, $formattedDate] = $formatter->formatEvent($name, $eventDate);
+
     $stmt = $pdo->prepare("UPDATE events SET name = ?, event_date = ?, description = ? WHERE id = ?");
-    $stmt->execute([$name, $eventDate, $description, $eventId]);
+    $stmt->execute([$formattedName, $formattedDate, $description, $eventId]);
 
     header("Location: detail.php?id=" . $eventId);
     exit;

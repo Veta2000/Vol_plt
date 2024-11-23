@@ -7,6 +7,16 @@ require_once 'DateValidator.php';
 require_once 'EmailValidator.php';
 require_once 'PasswordValidator.php';
 
+
+trait DateFormatterTrait {
+    public function format(string $data): string {
+        $date = DateTime::createFromFormat('Y-m-d', $data);
+        return $date ? $date->format('d.m.Y') : 'Invalid date';
+    }
+}
+
+
+
 class Validator {
     protected $validators = [];
     protected $errors = [];

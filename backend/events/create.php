@@ -10,15 +10,21 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'organizer') {
 }
 
 require_once '../config.php';
+require_once '../includes/validators/EventFormatter.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $formatter = new EventFormatter();
+
     $title = $_POST['title'];
     $description = $_POST['description'];
     $date = $_POST['date'];
     $organizer_id = $_SESSION['user_id'];
 
+    // Форматирование данных перед записью
+    [$formattedTitle, $formattedDate] = $formatter->formatEvent($title, $date);
+
     $stmt = $pdo->prepare("INSERT INTO events (name, description, event_date, created_by) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$title, $description, $date, $organizer_id]);
+    $stmt->execute([$formattedTitle, $description, $formattedDate, $organizer_id]);
 
     header("Location: ../profile/organizer.php");
     exit;
