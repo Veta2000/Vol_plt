@@ -34,7 +34,7 @@ $eventCount = 0;
 foreach ($organizerIds as $organizerId) {
     $eventsToCreate = rand(0, 10);
     for ($j = 0; $j < $eventsToCreate; $j++) {
-        $stmt = $pdo->prepare("INSERT INTO events (name, description, event_date, location, participant_count, category_id, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO events (name, description, event_date, location, participant_count, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $faker->sentence(3),
             $faker->paragraph,

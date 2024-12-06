@@ -1,6 +1,5 @@
 <?php
 
-
 function getPopularEvents($limit) {
     global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM events ORDER BY participant_count DESC LIMIT ?");
@@ -8,9 +7,7 @@ function getPopularEvents($limit) {
     return $stmt->fetchAll();
 }
 
-
-
-//  получение дет мероприятия
+// Получение деталей мероприятия
 function getEventDetails($id) {
     global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM events WHERE id = ?");
@@ -18,10 +15,10 @@ function getEventDetails($id) {
     return $stmt->fetch();
 }
 
-
 function getFilteredEvents($limit, $offset, $sort, $location, $search = '') {
     global $pdo;
 
+    // Базовый SQL-запрос
     $sql = "SELECT * FROM events WHERE 1";
 
     // Фильтр по местоположению
@@ -123,11 +120,10 @@ function deleteEvent($pdo, $eventId, $userId) {
     }
 }
 
-// бутстрап
+// Подключение Bootstrap
 function includeBootstrap() {
     echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">';
 }
-
 function includeCustomCSS($path) {
     echo '<link rel="stylesheet" href="' . htmlspecialchars($path) . '">';
 }
