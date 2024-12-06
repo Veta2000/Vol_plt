@@ -3,7 +3,7 @@ session_start();
 include_once '../config.php';
 include_once '../includes/functions.php';
 
-// Проверка авторизации пользователя
+// Проверка авторизации
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../404.php");
     exit();
@@ -17,17 +17,15 @@ if ($page < 1) {
 }
 $offset = ($page - 1) * $limit;
 
-// сортировка
-$sort = isset($_GET['sort']) && $_GET['sort'] === 'popularity' ? 'participant_count' : 'event_date';
-
-// фильтр
 $location = isset($_GET['location']) ? trim($_GET['location']) : '';
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$sort = isset($_GET['sort']) && in_array($_GET['sort'], ['event_date', 'participant_count']) ? $_GET['sort'] : 'event_date';
 
 // Получение данных с учетом сортировки и фильтрации
-$events = getFilteredEvents($limit, $offset, $sort, $location);
+$events = getFilteredEvents($limit, $offset, $sort, $location, $search);
 
 // Получение общего количества мероприятий для пагинации
-$totalEvents = getTotalEventsCount($location);
+$totalEvents = getTotalEventsCount($location, $search);
 $totalPages = ceil($totalEvents / $limit);
 
 // начальная, конечная стр
@@ -48,6 +46,10 @@ include_once '../includes/navbar.php';
         <div class="form-group">
             <label for="location">Фильтр по местоположению:</label>
             <input type="text" name="location" id="location" class="form-control" value="<?= htmlspecialchars($location); ?>">
+        </div>
+        <div class="form-group">
+            <label for="search">Поиск:</label>
+            <input type="text" name="search" id="search" class="form-control" value="<?= htmlspecialchars($search); ?>">
         </div>
         <div class="form-group">
             <label for="sort">Сортировка:</label>

@@ -19,41 +19,67 @@ function getEventDetails($id) {
 }
 
 
-function getFilteredEvents($limit, $offset, $sort, $location) {
+function getFilteredEvents($limit, $offset, $sort, $location, $search = '') {
     global $pdo;
 
-    $query = "SELECT * FROM events WHERE 1=1";
-    
+    $sql = "SELECT * FROM events WHERE 1";
+
+    // Фильтр по местоположению
     if (!empty($location)) {
-        $query .= " AND location LIKE :location";
+        $sql .= " AND location LIKE :location";
     }
-    
-    $query .= " ORDER BY $sort LIMIT :limit OFFSET :offset";
-    
-    $stmt = $pdo->prepare($query);
+
+    // Поиск по имени или описанию
+    if (!empty($search)) {
+        $sql .= " AND (name LIKE :search OR description LIKE :search)";
+    }
+
+    // Сортировка
+    $sql .= " ORDER BY $sort";
+
+    // Лимит и смещение
+    $sql .= " LIMIT :limit OFFSET :offset";
+
+    $stmt = $pdo->prepare($sql);
+
+    // Привязка параметров
     if (!empty($location)) {
-        $stmt->bindValue(':location', "%$location%", PDO::PARAM_STR);
+        $stmt->bindValue(':location', '%' . $location . '%', PDO::PARAM_STR);
+    }
+    if (!empty($search)) {
+        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
     }
     $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
     $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-    $stmt->execute();
 
+    $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getTotalEventsCount($location = '') {
+function getTotalEventsCount($location = '', $search = '') {
     global $pdo;
 
-    $query = "SELECT COUNT(*) FROM events WHERE 1=1";
+    // Базовый SQL-запрос
+    $sql = "SELECT COUNT(*) FROM events WHERE 1";
 
+    // Фильтр по местоположению
     if (!empty($location)) {
-        $query .= " AND location LIKE :location";
+        $sql .= " AND location LIKE :location";
     }
 
-    $stmt = $pdo->prepare($query);
+    // Поиск по имени или описанию
+    if (!empty($search)) {
+        $sql .= " AND (name LIKE :search OR description LIKE :search)";
+    }
 
+    $stmt = $pdo->prepare($sql);
+
+    // Привязка параметров
     if (!empty($location)) {
-        $stmt->bindValue(':location', "%$location%", PDO::PARAM_STR);
+        $stmt->bindValue(':location', '%' . $location . '%', PDO::PARAM_STR);
+    }
+    if (!empty($search)) {
+        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
     }
 
     $stmt->execute();

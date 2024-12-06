@@ -32,7 +32,7 @@ class Validator {
 
     /**
      * @param array $data Массив данных для проверки.
-     * @return bool Возвращает true, если все данные валидны, иначе false.
+     * @return bool Возвращает true, если все данные валидны
      */
     public function validate(array $data): bool {
         $this->errors = [];

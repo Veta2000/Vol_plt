@@ -15,36 +15,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $validator->addValidator('username', 'string');
     $validator->addValidator('password', 'string');
 
-    // Собр данные для валидации
     $data = [
         'username' => $username,
         'password' => $password
     ];
 
-
     if ($validator->validate($data)) {
-        // Поиск пользователя в бд
+        // Поиск пользователя в БД
         $stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE username = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
-
         // Проверка пароля
         if ($user && password_verify($password, $user['password'])) {
-            // Сохр в сессии
+            // Сохраняем в сессии
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
 
-            // Проверка на ЗМ
+            // Проверка на "Запомнить меня"
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
-                setcookie('remember_token', $token, time() + (86400 * 30), "/"); 
+                setcookie('remember_token', $token, time() + (86400 * 30), "/");
 
-                // Обнов токен в бд
+                // Обновляем токен в БД
                 $stmt = $pdo->prepare("UPDATE users SET remember_token = ? WHERE id = ?");
                 $stmt->execute([$token, $user['id']]);
             }
-           
+
             // Перенаправление на профиль
             if ($user['role'] === 'volunteer') {
                 header("Location: ../profile/volunteer.php");
@@ -53,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: ../profile/organizer.php");
                 exit;
             }
-            
         } else {
             $errors[] = "Неправильное имя пользователя или пароль.";
         }

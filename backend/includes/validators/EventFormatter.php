@@ -11,8 +11,8 @@ class EventFormatter {
     }
 
     public function formatEvent($name, $date) {
-        $formattedName = $this->format($name); // Использует StringFormatterTrait
-        $formattedDate = $this->formatDate($date); // Использует DateFormatterTrait
+        $formattedName = $this->format($name); // StringFormatterTrait
+        $formattedDate = $this->formatDate($date); // DateFormatterTrait
         return [$formattedName, $formattedDate];
     }
 }

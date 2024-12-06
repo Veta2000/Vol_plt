@@ -14,10 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $validator = new Validator();
     $validator->addValidator('username', 'string');
-    $validator->addValidator('email', 'string'); 
-    $validator->addValidator('password', 'string'); 
+    $validator->addValidator('email', 'string');
+    $validator->addValidator('password', 'string');
     $validator->addValidator('role', 'string');
-
 
     $data = [
         'username' => $username,
@@ -26,9 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'role' => $role
     ];
 
-
     if ($validator->validate($data)) {
-        // Доп проверка уникальности юзера
+        // Проверка уникальности имени пользователя
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
         $stmt->execute([$username]);
         if ($stmt->fetchColumn() > 0) {
@@ -44,35 +42,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors['password'] = "Пароль должен содержать более 10 символов, включать буквы верхнего и нижнего регистра, цифры и спецсимволы.";
         }
 
-        // Если нет ошибок, сохраняем в бд
+        // Если ошибок нет, сохраняем пользователя в БД
         if (empty($errors)) {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
             $stmt->execute([$username, $email, $passwordHash, $role]);
-          
-          if ($stmt->rowCount() > 0) {
-            // Получение ид нового юзера
-            $userId = $pdo->lastInsertId();
 
-            // данные сессии 
-            $_SESSION['user_id'] = $userId;
-            $_SESSION['username'] = $username;
-            $_SESSION['role'] = $role;
+            if ($stmt->rowCount() > 0) {
+                // Получение ID нового пользователя
+                $userId = $pdo->lastInsertId();
 
-            // Перенаправление на лк
-            $profilePage = $role === 'organizer' ? '/profile/organizer.php' : '/profile/volunteer.php';
-            header("Location: $profilePage");
-            exit;
+                // Данные сессии
+                $_SESSION['user_id'] = $userId;
+                $_SESSION['username'] = $username;
+                $_SESSION['role'] = $role;
+
+                // Перенаправление на профиль
+                $profilePage = $role === 'organizer' ? '/profile/organizer.php' : '/profile/volunteer.php';
+                header("Location: $profilePage");
+                exit;
+            }
         }
+    } else {
+        $errors = array_merge($errors, $validator->getErrors());
     }
-} else {
-    $errors = array_merge($errors, $validator->getErrors());
-}
 }
 
-
- include_once '../includes/navbar.php';
- ?>
+include_once '../includes/navbar.php';
+?>
 
 <div class="container mt-5">
     <h2>Регистрация</h2>
