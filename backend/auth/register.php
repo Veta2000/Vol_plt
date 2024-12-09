@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $errors['password'] = "Пароль должен содержать более 10 символов, включать буквы верхнего и нижнего регистра, цифры и спецсимволы.";
         }
 
-        // Если ошибок нет, сохраняем пользователя в БД
+    
         if (empty($errors)) {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['username'] = $username;
                 $_SESSION['role'] = $role;
 
-                // Перенаправление на профиль
                 $profilePage = $role === 'organizer' ? '/profile/organizer.php' : '/profile/volunteer.php';
                 header("Location: $profilePage");
                 exit;

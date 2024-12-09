@@ -28,21 +28,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Проверка пароля
         if ($user && password_verify($password, $user['password'])) {
-            // Сохраняем в сессии
+            // Сохр в сессии
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
 
-            // Проверка на "Запомнить меня"
+            // Проверка на зм
             if ($remember) {
                 $token = bin2hex(random_bytes(32));
                 setcookie('remember_token', $token, time() + (86400 * 30), "/");
 
-                // Обновляем токен в БД
+                // Обнов токена в БД
                 $stmt = $pdo->prepare("UPDATE users SET remember_token = ? WHERE id = ?");
                 $stmt->execute([$token, $user['id']]);
             }
 
-            // Перенаправление на профиль
+            // Перенаправление 
             if ($user['role'] === 'volunteer') {
                 header("Location: ../profile/volunteer.php");
                 exit;

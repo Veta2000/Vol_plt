@@ -18,7 +18,6 @@ function getEventDetails($id) {
 function getFilteredEvents($limit, $offset, $sort, $location, $search = '') {
     global $pdo;
 
-    // Базовый SQL-запрос
     $sql = "SELECT * FROM events WHERE 1";
 
     // Фильтр по местоположению
@@ -26,25 +25,25 @@ function getFilteredEvents($limit, $offset, $sort, $location, $search = '') {
         $sql .= " AND location LIKE :location";
     }
 
-    // Поиск по имени или описанию
+    // Поиск по названию и описанию
     if (!empty($search)) {
-        $sql .= " AND (name LIKE :search OR description LIKE :search)";
+        $sql .= " AND (name LIKE :search OR description LIKE :searchDescription)";
     }
 
     // Сортировка
-    $sql .= " ORDER BY $sort";
+  $sql .= " ORDER BY $sort";
 
-    // Лимит и смещение
+    // Лимит смещение
     $sql .= " LIMIT :limit OFFSET :offset";
 
     $stmt = $pdo->prepare($sql);
 
-    // Привязка параметров
     if (!empty($location)) {
         $stmt->bindValue(':location', '%' . $location . '%', PDO::PARAM_STR);
     }
     if (!empty($search)) {
-        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':search', '%' . strtolower(trim($search)) . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':searchDescription', '%' . strtolower(trim($search)) . '%', PDO::PARAM_STR);
     }
     $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
     $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
@@ -53,10 +52,10 @@ function getFilteredEvents($limit, $offset, $sort, $location, $search = '') {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+
 function getTotalEventsCount($location = '', $search = '') {
     global $pdo;
 
-    // Базовый SQL-запрос
     $sql = "SELECT COUNT(*) FROM events WHERE 1";
 
     // Фильтр по местоположению
@@ -66,17 +65,17 @@ function getTotalEventsCount($location = '', $search = '') {
 
     // Поиск по имени или описанию
     if (!empty($search)) {
-        $sql .= " AND (name LIKE :search OR description LIKE :search)";
+        $sql .= " AND (name LIKE :search OR description LIKE :searchDescription)";
     }
 
     $stmt = $pdo->prepare($sql);
 
-    // Привязка параметров
     if (!empty($location)) {
         $stmt->bindValue(':location', '%' . $location . '%', PDO::PARAM_STR);
     }
     if (!empty($search)) {
         $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+        $stmt->bindValue(':searchDescription', '%' . strtolower(trim($search)) . '%', PDO::PARAM_STR);
     }
 
     $stmt->execute();
@@ -84,10 +83,10 @@ function getTotalEventsCount($location = '', $search = '') {
 }
 
 function deleteEvent($pdo, $eventId, $userId) {
-    // Получение данных мероприятия
+
     $event = getEventDetails($eventId);
 
-    // Проверка существования мероприятия
+
     if (!$event) {
         return ['status' => false, 'message' => 'Мероприятие не найдено.'];
     }
@@ -119,6 +118,13 @@ function deleteEvent($pdo, $eventId, $userId) {
         return ['status' => false, 'message' => 'Ошибка при удалении: ' . $e->getMessage()];
     }
 }
+// список для фильтрации
+function getUniqueLocations() {
+    global $pdo;
+    $stmt = $pdo->query("SELECT DISTINCT location FROM events WHERE location IS NOT NULL ORDER BY location");
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
 
 // Подключение Bootstrap
 function includeBootstrap() {

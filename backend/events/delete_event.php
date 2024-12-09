@@ -12,13 +12,13 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 $userRole = $_SESSION['role'];
 
-// Проверка роли пользователя
+// Проверка роли 
 if ($userRole !== 'organizer') {
     header("Location: /404.php");
     exit;
 }
 
-// Проверка наличия ID мероприятия
+// Проверка наличия ID 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: /404.php");
     exit;
@@ -26,7 +26,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $eventId = $_GET['id'];
 
-// Вызов функции удаления
 $result = deleteEvent($pdo, $eventId, $userId);
 
 if ($result['status']) {

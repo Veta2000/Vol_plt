@@ -25,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $eventDate = $_POST['event_date'];
     $description = $_POST['description'];
 
-    // Форматирование данных перед записью
     [$formattedName, $formattedDate] = $formatter->formatEvent($name, $eventDate);
 
     $stmt = $pdo->prepare("UPDATE events SET name = ?, event_date = ?, description = ? WHERE id = ?");

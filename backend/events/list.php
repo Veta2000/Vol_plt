@@ -23,11 +23,15 @@ $sort = isset($_GET['sort']) && $_GET['sort'] === 'popularity' ? 'participant_co
 // фильтр
 $location = isset($_GET['location']) ? trim($_GET['location']) : '';
 
-// Получение данных с учетом сортировки и фильтрации
-$events = getFilteredEvents($limit, $offset, $sort, $location);
+$locationList = getUniqueLocations();
 
-// Получение общего количества мероприятий для пагинации
-$totalEvents = getTotalEventsCount($location);
+// Поиск
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+$events = getFilteredEvents($limit, $offset, $sort, $location, $search);
+
+// для пагинации 
+$totalEvents = getTotalEventsCount($location, $search);
 $totalPages = ceil($totalEvents / $limit);
 
 // начальная, конечная стр
@@ -46,8 +50,19 @@ include_once '../includes/navbar.php';
     <h2>Все мероприятия</h2>
     <form method="GET" class="mb-3">
         <div class="form-group">
+            <label for="search">Поиск по названию или описанию:</label>
+            <input type="text" name="search" id="search" class="form-control" value="<?= htmlspecialchars($search); ?>">
+        </div>
+        <div class="form-group">
             <label for="location">Фильтр по местоположению:</label>
-            <input type="text" name="location" id="location" class="form-control" value="<?= htmlspecialchars($location); ?>">
+            <select name="location" id="location" class="form-control">
+                <option value="">Все местоположения</option>
+                <?php foreach ($locationList as $loc): ?>
+                    <option value="<?= htmlspecialchars($loc); ?>" <?= $loc === $location ? 'selected' : ''; ?>>
+                        <?= htmlspecialchars($loc); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-group">
             <label for="sort">Сортировка:</label>

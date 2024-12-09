@@ -12,7 +12,7 @@ if (!$eventId || !($event = getEventDetails($eventId))) {
     exit;
 }
 
-// Проверка, что пользователь авторизован
+// проверка, пользователь авторизован
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
     $userRole = $_SESSION['role']; 
@@ -29,7 +29,7 @@ $event = getEventDetails($eventId);
 
 $isOrganizer = $userRole === 'organizer' && $userId === $event['created_by'];
 
-// Проверка, является ли пользователь волонтёром и уже присоединился
+// Проверка, является ли или уже присоединился
 $isVolunteer = $userRole === 'volunteer';
 $stmt = $pdo->prepare("SELECT * FROM event_participants WHERE event_id = ? AND user_id = ?");
 $stmt->execute([$eventId, $userId]);
