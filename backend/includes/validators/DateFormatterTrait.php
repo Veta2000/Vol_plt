@@ -2,7 +2,7 @@
 
 trait DateFormatterTrait {
     public function format($date) {
-        return date('d-m-Y', strtotime($date)); 
+        return date('Y-m-d', strtotime($date)); 
     }
 }
 ?>
